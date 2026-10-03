@@ -9,29 +9,29 @@ products = [
     {"id": 3, "name": "Desk", "price": 199.99, "category": "furniture"},
 ]
 
-# Homepage route that returns a welcome message
+# Homepage route
 @app.route("/", methods=["GET"])
 def home():
     return jsonify({"message": "Welcome to the Product Catalog API!"}), 200
 
-# GET /products - Returns all products or filters by category query parameter
+# GET /products - Returns all products or filters by category
 @app.route("/products", methods=["GET"])
 def get_products():
-    category = request.args.get("category")
+    category = request.args.get("category") if request.args else None
     
     if category:
-        filtered_products = [
+        filtered = [
             p for p in products 
-            if p["category"].lower() == category.lower()
+            if str(p.get("category", "")).lower() == str(category).lower()
         ]
-        return jsonify(filtered_products), 200
+        return jsonify(filtered), 200
         
     return jsonify(products), 200
 
-# GET /products/<id> - Returns a specific product by ID or 404 if not found
+# GET /products/<id> - Returns product by ID or 404
 @app.route("/products/<int:product_id>", methods=["GET"])
 def get_product(product_id):
-    product = next((p for p in products if p["id"] == product_id), None)
+    product = next((p for p in products if p.get("id") == product_id), None)
     
     if not product:
         return jsonify({"error": f"Product with ID {product_id} not found"}), 404
